@@ -1,10 +1,11 @@
 name: mywidgets
-description: Final Masterpiece for Saleh
+description: Saleh Smart Folder
 version: 1.0.0+1
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
+  installed_apps: ^1.0.2
 flutter:
   uses-material-design: true

@@ -1,32 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:installed_apps/installed_apps.dart';
+import 'package:installed_apps/app_info.dart';
 
-void main() => runApp(const MaterialApp(home: SalehApp(), debugShowCheckedModeBanner: false));
+void main() => runApp(const MaterialApp(home: SmartFolderHome(), debugShowCheckedModeBanner: false));
 
-class SalehApp extends StatelessWidget {
-  const SalehApp({super.key});
+class SmartFolderHome extends StatefulWidget {
+  const SmartFolderHome({super.key});
+  @override
+  State<SmartFolderHome> createState() => _SmartFolderHomeState();
+}
+
+class _SmartFolderHomeState extends State<SmartFolderHome> {
+  List<AppInfo> apps = [];
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadApps();
+  }
+
+  _loadApps() async {
+    List<AppInfo> installedApps = await InstalledApps.getInstalledApps(true, true);
+    setState(() => apps = installedApps);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.auto_awesome, color: Colors.cyanAccent, size: 80),
-            const SizedBox(height: 20),
-            const Text("Saleh's Smart Folder", style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text("تم إتقان التطبيق بنجاح. الآن اخرج للشاشة الرئيسية وأضف الوجت وسترى السحر.", 
-                          textAlign: TextAlign.center, style: TextStyle(color: Colors.white70)),
+      backgroundColor: const Color(0xFF0F172A),
+      appBar: AppBar(title: const Text("Smart Folder Master"), backgroundColor: Colors.transparent),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text("اختر تطبيقاتك للمجلد القابل للتمرير", style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: apps.length,
+              itemBuilder: (context, i) => CheckboxListTile(
+                title: Text(apps[i].name ?? "", style: const TextStyle(color: Colors.white)),
+                secondary: apps[i].icon != null ? Image.memory(apps[i].icon!, width: 40) : null,
+                value: true, // مؤقتاً للتجربة
+                onChanged: (v) {},
+              ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              decoration: BoxDecoration(color: Colors.cyanAccent, borderRadius: BorderRadius.circular(30)),
-              child: const Text("READY TO USE", style: TextStyle(fontWeight: FontWeight.bold)),
-            )
-          ],
-        ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.cyanAccent, foregroundColor: Colors.black),
+              onPressed: () {},
+              child: const Text("تحديث المجلد على الشاشة الرئيسية"),
+            ),
+          )
+        ],
       ),
     );
   }

@@ -11,10 +11,10 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: '3.24.0'
       - run: flutter pub get
-      - run: flutter build apk --debug --android-skip-build-dependency-validation
+      - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
-          name: Saleh-Smart-Folder
+          name: SmartFolder-Success
           path: build/app/outputs/flutter-apk/app-debug.apk
