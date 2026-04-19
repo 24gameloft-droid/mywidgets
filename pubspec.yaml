@@ -6,6 +6,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  device_apps: ^2.2.0
+  installed_apps: ^1.0.2
 flutter:
   uses-material-design: true
