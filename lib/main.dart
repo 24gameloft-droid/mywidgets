@@ -1,60 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:device_apps/device_apps.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    home: FolderSettings(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+void main() => runApp(const MaterialApp(home: FolderManager(), debugShowCheckedModeBanner: false));
 
-class FolderSettings extends StatefulWidget {
-  const FolderSettings({super.key});
+class FolderManager extends StatefulWidget {
+  const FolderManager({super.key});
   @override
-  State<FolderSettings> createState() => _FolderSettingsState();
+  State<FolderManager> createState() => _FolderManagerState();
 }
 
-class _FolderSettingsState extends State<FolderSettings> {
-  double _opacity = 0.7;
-  Color _selectedColor = Colors.indigo;
+class _FolderManagerState extends State<FolderManager> {
+  List<Application> allApps = [];
+  List<String> selectedPackages = [];
+  double _opacity = 0.5;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadApps();
+  }
+
+  _loadApps() async {
+    List<Application> apps = await DeviceApps.getInstalledApplications(
+      includeAppIcons: true, includeSystemApps: true, onlyAppsWithLaunchIntent: true);
+    setState(() => allApps = apps);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Smart Folder Config"),
-        backgroundColor: _selectedColor,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            const Text("Widget Transparency"),
-            Slider(
-              value: _opacity,
-              onChanged: (value) => setState(() => _opacity = value),
-            ),
-            const SizedBox(height: 20),
-            const Text("Choose Background Color"),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Colors.black, Colors.indigo, Colors.teal, Colors.blueGrey].map((color) {
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedColor = color),
-                  child: CircleAvatar(backgroundColor: color, radius: 25),
+      appBar: AppBar(title: const Text("Select Apps for Folder")),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(children: [
+              const Text("Transparency:"),
+              Expanded(child: Slider(value: _opacity, onChanged: (v) => setState(() => _opacity = v))),
+            ]),
+          ),
+          const Divider(),
+          Expanded(
+            child: ListView.builder(
+              itemCount: allApps.length,
+              itemBuilder: (context, i) {
+                return CheckboxListTile(
+                  secondary: allApps[i] is ApplicationWithIcon ? Image.memory((allApps[i] as ApplicationWithIcon).icon, width: 30) : null,
+                  title: Text(allApps[i].appName),
+                  value: selectedPackages.contains(allApps[i].packageName),
+                  onChanged: (bool? val) {
+                    setState(() {
+                      if (val == true) selectedPackages.add(allApps[i].packageName);
+                      else selectedPackages.remove(allApps[i].packageName);
+                    });
+                  },
                 );
-              }).toList(),
+              },
             ),
-            const Spacer(),
-            const Text("Apps list for scrolling folder will appear here", style: TextStyle(color: Colors.grey)),
-            const Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-              onPressed: () {},
-              child: const Text("Apply Settings"),
-            ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 60)),
+            onPressed: () { /* حفظ الإعدادات */ },
+            child: const Text("Save & Add to Home Screen"),
+          )
+        ],
       ),
     );
   }
