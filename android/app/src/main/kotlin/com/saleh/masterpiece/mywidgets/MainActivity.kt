@@ -1,4 +1,4 @@
-package com.saleh.smartfolder.mywidgets
+package com.saleh.masterpiece.mywidgets
 
 import io.flutter.embedding.android.FlutterActivity
 
