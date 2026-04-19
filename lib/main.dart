@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:installed_apps/app_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(const MaterialApp(home: FolderManager(), debugShowCheckedModeBanner: false));
 
@@ -13,41 +14,43 @@ class FolderManager extends StatefulWidget {
 class _FolderManagerState extends State<FolderManager> {
   List<AppInfo> allApps = [];
   List<String> selectedPackages = [];
-  double _opacity = 0.6;
 
   @override
   void initState() {
     super.initState();
-    _loadApps();
+    _loadData();
   }
 
-  _loadApps() async {
+  _loadData() async {
     List<AppInfo> apps = await InstalledApps.getInstalledApps(true, true);
-    setState(() => allApps = apps);
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      allApps = apps;
+      selectedPackages = prefs.getStringList('selected_apps') ?? [];
+    });
+  }
+
+  _saveAndRefresh() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('selected_apps', selectedPackages);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Selection Saved! Now add the widget from Home Screen"))
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Select Apps for Folder"), backgroundColor: Colors.black87),
+      appBar: AppBar(title: const Text("Select Apps"), backgroundColor: Colors.black87),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(15),
-            color: Colors.grey[200],
-            child: Row(children: [
-              const Text("Opacity:"),
-              Expanded(child: Slider(value: _opacity, onChanged: (v) => setState(() => _opacity = v))),
-            ]),
-          ),
           Expanded(
             child: ListView.builder(
               itemCount: allApps.length,
               itemBuilder: (context, i) {
                 return CheckboxListTile(
                   secondary: allApps[i].icon != null ? Image.memory(allApps[i].icon!, width: 40) : null,
-                  title: Text(allApps[i].name ?? "Unknown"),
-                  subtitle: Text(allApps[i].packageName ?? ""),
+                  title: Text(allApps[i].name ?? ""),
                   value: selectedPackages.contains(allApps[i].packageName),
                   onChanged: (bool? val) {
                     setState(() {
@@ -61,17 +64,11 @@ class _FolderManagerState extends State<FolderManager> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 55),
-                backgroundColor: Colors.black87,
-                foregroundColor: Colors.white
-              ),
-              onPressed: () {
-                print("Selected: $selectedPackages");
-              },
-              child: const Text("SAVE AND UPDATE WIDGET"),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 55), backgroundColor: Colors.blue),
+              onPressed: _saveAndRefresh,
+              child: const Text("CONFIRM SELECTION", style: TextStyle(color: Colors.white)),
             ),
           )
         ],
