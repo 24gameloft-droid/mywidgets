@@ -1,4 +1,4 @@
-package com.mydev.mywidgets.mywidgets
+package com.saleh.smartfolder.mywidgets
 
 import io.flutter.embedding.android.FlutterActivity
 

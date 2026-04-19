@@ -12,7 +12,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      - run: flutter pub get
+      - run: flutter pub add installed_apps
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
